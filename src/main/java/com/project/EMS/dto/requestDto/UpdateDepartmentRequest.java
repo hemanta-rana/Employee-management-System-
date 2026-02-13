@@ -1,6 +1,5 @@
-package com.project.EMS.dto.ResponseDto;
+package com.project.EMS.dto.requestDto;
 
-import com.project.EMS.entity.Employee;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,20 +7,17 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DepartmentResponse {
-    private Long id ;
+public class UpdateDepartmentRequest {
 
+    @NotBlank(message = "name cannot be blank")
     private String departmentName;
 
-    private Boolean isActive ;
+    private Boolean isActive = true;
 
-    private LocalDateTime createdAt ;
-
-    private Long employeeCount;
 
 }
