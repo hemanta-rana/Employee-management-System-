@@ -1,10 +1,7 @@
 package com.project.EMS.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,18 +12,21 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String name;
     @Column(nullable = false, unique = true)
     private String email;
 
     private String phone;
+
     @Column(name = "is_active")
     private Boolean is_active;
+
     @Column(name = "created_at",updatable = false)
     private LocalDateTime created_at;
 
@@ -34,11 +34,11 @@ public class Employee {
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
-    @OneToMany(mappedBy = "employee")
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SalaryRecord> salaryRecords;
 
-    @OneToMany(mappedBy = "attendance")
-    private List<Attendance> attendanceList;
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Attendance> attendanceRecords;
 
 
 }

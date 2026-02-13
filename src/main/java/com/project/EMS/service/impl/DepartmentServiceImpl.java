@@ -4,6 +4,7 @@ import com.project.EMS.dto.ResponseDto.DepartmentResponse;
 import com.project.EMS.dto.requestDto.CreateDepartmentRequest;
 import com.project.EMS.dto.requestDto.UpdateDepartmentRequest;
 import com.project.EMS.entity.Department;
+import com.project.EMS.exception.ResourceNotFoundException;
 import com.project.EMS.repository.DepartmentRepository;
 import com.project.EMS.repository.EmployeeRepository;
 import com.project.EMS.service.DepartmentService;
@@ -12,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
 
 import org.springframework.stereotype.Service;
-
-
 
 @Service
 @AllArgsConstructor
@@ -39,7 +38,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Transactional
     public DepartmentResponse updateDepartment(UpdateDepartmentRequest updateDepartmentRequest, Long id) {
 
-        Department department = departmentRepository.findById(id).orElseThrow(()-> new RuntimeException("id not found "));
+        Department department = departmentRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Department not found with id: "+id));
         department.setDepartmentName(updateDepartmentRequest.getDepartmentName());
         department.setIsActive(updateDepartmentRequest.getIsActive());
 

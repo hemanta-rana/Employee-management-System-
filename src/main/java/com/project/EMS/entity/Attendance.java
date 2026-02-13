@@ -17,6 +17,7 @@ uniqueConstraints = {
 })
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Attendance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,11 +25,13 @@ public class Attendance {
 
     @Column(name = "attendance_date",nullable = false)
     private LocalDate attendanceDate;
+
     @Column(name = "check_in")
     private LocalTime checkIn;
 
     @Column(name = "check_out")
     private LocalTime checkOut;
+
     @Column(name = "created_at",updatable = false)
     private LocalDateTime createdAt;
 

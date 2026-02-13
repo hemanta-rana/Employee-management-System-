@@ -17,6 +17,6 @@ public class CreateDepartmentRequest {
     @NotBlank(message = "name cannot be blank")
     private String departmentName;
 
-    private Boolean isActive = true;
+    private Boolean isActive ;
 
 }
