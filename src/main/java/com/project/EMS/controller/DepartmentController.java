@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/department")
@@ -25,6 +27,11 @@ public class DepartmentController {
     @PostMapping("/update/{departmentId}")
     public ResponseEntity<DepartmentResponse> updateDepartment(@Valid @RequestBody UpdateDepartmentRequest updateDepartmentRequest, @PathVariable Long departmentId){
         return ResponseEntity.status(HttpStatus.OK).body(departmentService.updateDepartment(updateDepartmentRequest, departmentId));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<DepartmentResponse>> getAllDepartment (){
+        return ResponseEntity.ok(departmentService.listAllDepartment());
     }
 
 }
