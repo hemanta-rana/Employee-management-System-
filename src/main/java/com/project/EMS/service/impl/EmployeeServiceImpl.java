@@ -13,7 +13,7 @@ import com.project.EMS.repository.EmployeeRepository;
 
 import com.project.EMS.service.EmployeeService;
 import lombok.AllArgsConstructor;
-import org.mapstruct.factory.Mappers;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,26 +39,49 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setDepartment(department);
 
        Employee savedEmployee = employeeRepository.save(employee);
-       EmployeeResponse employeeResponse =  employeeMapper.mapEmployeeToEmployeeResponse(savedEmployee);
-//
-        return employeeResponse;
+       return  employeeMapper.mapEmployeeToEmployeeResponse(savedEmployee);
     }
 
     @Override
+    @Transactional
     public EmployeeResponse updateEmployee(UpdateEmployeeRequest updateEmployeeRequest, Long employeeId) {
 
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow(()-> new ResourceNotFoundException("Employee not found with ID: "+employeeId));
+        employee.setName(updateEmployeeRequest.getName());
+        employee.setEmail(updateEmployeeRequest.getEmail());
+        employee.setPhone(updateEmployeeRequest.getPhone());
 
+        Department department = departmentRepository.findById(updateEmployeeRequest.getDepartmentId()).orElseThrow(()-> new ResourceNotFoundException("Department not found ID: "+updateEmployeeRequest.getDepartmentId()));
+        employee.setDepartment(department);
 
-        return null;
+        Employee savedEmployee = employeeRepository.save(employee);
+
+        return employeeMapper.mapEmployeeToEmployeeResponse(savedEmployee);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EmployeeResponse> listAllEmployees() {
-        return List.of();
+        List<Employee> employees = employeeRepository.findAll();
+        return employees.stream()
+                .map(employeeMapper::mapEmployeeToEmployeeResponse)
+                .toList();
+
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EmployeeResponse getEmployeeById(Long employeeId) {
+       Employee employee = employeeRepository.findById(employeeId).orElseThrow(()-> new ResourceNotFoundException("Employee not found with ID: "+employeeId));
+
+       return employeeMapper.mapEmployeeToEmployeeResponse(employee);
+    }
+
+    @Override
+    @Transactional
+    public Void deleteEmployeeById(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow(()->new ResourceNotFoundException("Employee not found with ID:"+employeeId));
+        employeeRepository.delete(employee);
         return null;
     }
 }
