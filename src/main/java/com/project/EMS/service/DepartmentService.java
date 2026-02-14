@@ -4,7 +4,10 @@ import com.project.EMS.dto.ResponseDto.DepartmentResponse;
 import com.project.EMS.dto.requestDto.CreateDepartmentRequest;
 import com.project.EMS.dto.requestDto.UpdateDepartmentRequest;
 
+import java.util.List;
+
 public interface DepartmentService {
     DepartmentResponse createDepartment(CreateDepartmentRequest createDepartmentRequest);
     DepartmentResponse updateDepartment(UpdateDepartmentRequest updateDepartmentRequest, Long id);
+    List<DepartmentResponse> listAllDepartment();
 }
