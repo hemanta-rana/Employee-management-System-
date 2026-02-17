@@ -9,8 +9,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface SalaryRecordMapper {
 
+
+    @Mapping(source =  "employee.id", target = "employeeId")
     SalaryRecordResponse toSalaryRecordResponse(SalaryRecord salaryRecord);
-    @Mapping(source = "bonus", target = "bonus", defaultValue = "0")
-    @Mapping(source = "deduction", target = "deduction", defaultValue = "0")
+
     SalaryRecord toEntity(CreateSalaryRecordRequest createSalaryRecordRequest);
 }

@@ -34,7 +34,7 @@ public class SalaryRecord {
     private LocalDate effectiveDate;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdA;
+    private LocalDateTime createdAt;
 
     // many salary records belongs to one employee
     @ManyToOne(fetch = FetchType.LAZY)
