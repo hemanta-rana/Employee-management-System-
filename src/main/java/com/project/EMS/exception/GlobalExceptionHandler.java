@@ -1,7 +1,6 @@
 package com.project.EMS.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.catalina.Executor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,11 +13,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<?> handleResourceNotFound(
-            ResourceNotFoundException ex,
-            HttpServletRequest request
-    ){
+    public Map<String, Object> handleErrorMessage(Exception ex, HttpServletRequest request){
+
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status",404);
@@ -26,8 +22,33 @@ public class GlobalExceptionHandler {
         body.put("message", ex.getMessage());
         body.put("path", request.getRequestURI());
 
+        return body;
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> handleResourceNotFound(
+            ResourceNotFoundException ex,
+            HttpServletRequest request
+    ){
+       Map<String,Object> body =  handleErrorMessage(ex, request);
+
 
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AttendanceAlreadyMarkedException.class)
+    public ResponseEntity<?> handleAttendanceAlreadyMarkedException(AttendanceAlreadyMarkedException ex,
+                                                                    HttpServletRequest request){
+        Map<String,Object> body =  handleErrorMessage(ex, request);
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(EmployeeNotActiveException.class)
+    public ResponseEntity<?> handleEmployeeNotActiveException(EmployeeNotActiveException ex,
+                                                                    HttpServletRequest request){
+        Map<String,Object> body =  handleErrorMessage(ex, request);
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
@@ -35,12 +56,8 @@ public class GlobalExceptionHandler {
             Exception ex,
             HttpServletRequest request) {
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", 500);
-        body.put("error", "INTERNAL_SERVER_ERROR");
-        body.put("message", "Something went wrong");
-        body.put("path", request.getRequestURI());
+        Map<String,Object> body =  handleErrorMessage(ex, request);
+
 
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }

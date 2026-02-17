@@ -5,6 +5,8 @@ import com.project.EMS.dto.requestDto.CheckInAttendanceRequest;
 import com.project.EMS.dto.requestDto.CheckOutAttendanceRequest;
 import com.project.EMS.entity.Attendance;
 import com.project.EMS.entity.Employee;
+import com.project.EMS.exception.AttendanceAlreadyMarkedException;
+import com.project.EMS.exception.EmployeeNotActiveException;
 import com.project.EMS.exception.ResourceNotFoundException;
 import com.project.EMS.mapper.AttendanceMapper;
 import com.project.EMS.repository.AttendanceRepository;
@@ -28,12 +30,17 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     @Transactional
     public AttendanceResponse markInAttendance(CheckInAttendanceRequest checkInAttendanceRequest) {
-       Employee employee=  employeeRepository.findById(checkInAttendanceRequest.getEmployeeId()).orElseThrow(()-> new ResourceNotFoundException("Employee not found with ID; "+checkInAttendanceRequest.getEmployeeId()));
+        if ( attendanceRepository.existsByEmployeeIdAndAttendanceDate(checkInAttendanceRequest.getEmployeeId(), LocalDate.now())) throw new AttendanceAlreadyMarkedException("Attendance already marked for today ID : " + checkInAttendanceRequest.getEmployeeId());
+
+       Employee employee=  employeeRepository.findById(checkInAttendanceRequest.getEmployeeId()).orElseThrow(()-> new ResourceNotFoundException("Employee not found with ID:  "+checkInAttendanceRequest.getEmployeeId()));
+        if (!employee.getIsActive()) throw  new EmployeeNotActiveException("Employee is not Active with ID "+employee.getId());
+
        Attendance attendance = new Attendance();
        attendance.setAttendanceDate(LocalDate.now());
        attendance.setCheckIn(checkInAttendanceRequest.getCheckIn());
        attendance.setEmployee(employee);
        attendance.setCreatedAt(LocalDateTime.now());
+
        Attendance savedAttendance = attendanceRepository.save(attendance);
 
        return attendanceMapper.toAttendanceResponse(savedAttendance);
@@ -43,7 +50,13 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     @Transactional
     public AttendanceResponse markCheckOutAttendance(CheckOutAttendanceRequest checkOutAttendanceRequest, Long attendanceId) {
+
        Attendance attendance = attendanceRepository.findById(attendanceId).orElseThrow(()-> new ResourceNotFoundException("Attendance not found with ID :"+attendanceId));
+       if (attendance.getCheckOut() != null) throw new AttendanceAlreadyMarkedException("Attendance is already marked for this Id "+attendance.getEmployee().getId());
+       if (!attendance.getCheckIn().isBefore(checkOutAttendanceRequest.getCheckOut())){
+           throw new IllegalArgumentException("Invalid check out date ID "+attendanceId);
+
+       }
        attendance.setCheckOut(checkOutAttendanceRequest.getCheckOut());
        Attendance savedAttendance = attendanceRepository.save(attendance);
 
