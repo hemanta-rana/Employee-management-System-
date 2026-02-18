@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -40,11 +41,21 @@ public class SalaryRecordServiceImpl implements SalaryRecordService {
 
     @Override
     public SalaryRecordResponse getCurrentSalary(Long employeeId) {
-        return null;
+        if (!employeeRepository.existsById(employeeId)) throw new ResourceNotFoundException("employee Id not found with ID: "+employeeId);
+
+        SalaryRecord salaryRecord =salaryRecordRepository.findFirstByEmployeeIdOrderByEffectiveDateDesc(employeeId);
+        return salaryRecordMapper.toSalaryRecordResponse(salaryRecord);
+
+
     }
 
     @Override
-    public SalaryRecordResponse getSalaryHistory(Long employeeId) {
-        return null;
+    public List<SalaryRecordResponse> getSalaryHistory(Long  employeeId){
+        List<SalaryRecord> salaryRecords = salaryRecordRepository.findAllByEmployeeId(employeeId);
+        return salaryRecords.stream()
+                .map(salaryRecordMapper::toSalaryRecordResponse)
+                .toList();
+
+
     }
 }
