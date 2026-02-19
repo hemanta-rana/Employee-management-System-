@@ -1,5 +1,6 @@
 package com.project.EMS.service.impl;
 
+import com.project.EMS.dto.ResponseDto.SalaryHistoryPageResponse;
 import com.project.EMS.dto.ResponseDto.SalaryRecordResponse;
 import com.project.EMS.dto.requestDto.CreateSalaryRecordRequest;
 import com.project.EMS.entity.Employee;
@@ -12,6 +13,9 @@ import com.project.EMS.repository.EmployeeRepository;
 import com.project.EMS.repository.SalaryRecordRepository;
 import com.project.EMS.service.SalaryRecordService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -52,13 +56,21 @@ public class SalaryRecordServiceImpl implements SalaryRecordService {
     }
 
     @Override
-    public List<SalaryRecordResponse> getSalaryHistory(Long  employeeId){
+    public SalaryHistoryPageResponse getSalaryHistory(Long  employeeId, int pageNo, int pageSize){
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(()-> new ResourceNotFoundException("Employee not found with ID: "+employeeId));
-        List<SalaryRecord> salaryRecords = salaryRecordRepository.findAllByEmployeeId(employeeId);
-        return salaryRecords.stream()
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<SalaryRecord> pageResult = salaryRecordRepository.findByEmployeeIdOrderByEffectiveDateDesc(employeeId, pageable);
+        List<SalaryRecordResponse> mappedContent = pageResult.getContent().stream()
                 .map(salaryRecordMapper::toSalaryRecordResponse)
                 .toList();
 
-
+        return new SalaryHistoryPageResponse(
+                mappedContent,
+                pageResult.getNumber(),
+                pageResult.getSize(),
+                pageResult.getTotalElements(),
+                pageResult.getTotalPages(),
+                pageResult.isLast()
+        );
     }
 }
