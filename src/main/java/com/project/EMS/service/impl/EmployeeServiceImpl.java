@@ -1,6 +1,7 @@
 package com.project.EMS.service.impl;
 
 import com.project.EMS.dto.ResponseDto.EmployeeResponse;
+import com.project.EMS.dto.ResponseDto.EmployeesPageResponse;
 import com.project.EMS.dto.requestDto.CreateEmployeeRequest;
 import com.project.EMS.dto.requestDto.UpdateEmployeeRequest;
 import com.project.EMS.entity.Department;
@@ -14,6 +15,9 @@ import com.project.EMS.repository.EmployeeRepository;
 import com.project.EMS.service.EmployeeService;
 import lombok.AllArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,12 +65,23 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<EmployeeResponse> listAllEmployees() {
-        List<Employee> employees = employeeRepository.findAll();
-        return employees.stream()
-                .map(employeeMapper::mapEmployeeToEmployeeResponse)
-                .toList();
+    public EmployeesPageResponse listAllEmployees(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Employee> employeePage = employeeRepository.findAll(pageable);
+        List<EmployeeResponse> employees = employeePage.
+                getContent().
+                stream().
+                map(employeeMapper::mapEmployeeToEmployeeResponse).
+                toList();
 
+        return new EmployeesPageResponse(
+                employees,
+                employeePage.getNumber(),
+                employeePage.getSize(),
+                employeePage.getTotalElements(),
+                employeePage.getTotalPages(),
+                employeePage.isLast()
+        );
     }
 
     @Override

@@ -11,8 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface SalaryRecordRepository extends JpaRepository<SalaryRecord, Long> {
-    List<SalaryRecord> findAllByEmployeeId(Long employeeId);
-    SalaryRecord findByEmployeeId(Long employeeId);
+
    SalaryRecord  findFirstByEmployeeIdOrderByEffectiveDateDesc(Long employeeId);
     Page<SalaryRecord> findByEmployeeIdOrderByEffectiveDateDesc(Long employeeId, Pageable pageable);
 }

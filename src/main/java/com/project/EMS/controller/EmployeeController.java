@@ -1,6 +1,7 @@
 package com.project.EMS.controller;
 
 import com.project.EMS.dto.ResponseDto.EmployeeResponse;
+import com.project.EMS.dto.ResponseDto.EmployeesPageResponse;
 import com.project.EMS.dto.requestDto.CreateEmployeeRequest;
 import com.project.EMS.dto.requestDto.UpdateEmployeeRequest;
 import com.project.EMS.service.EmployeeService;
@@ -31,8 +32,9 @@ public class EmployeeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EmployeeResponse>> getAllEmployee(){
-        return ResponseEntity.ok(employeeService.listAllEmployees());
+    public ResponseEntity<EmployeesPageResponse> getAllEmployee(@RequestParam(defaultValue = "0") int pageNo,
+                                                                @RequestParam(defaultValue = "10") int pageSize){
+        return ResponseEntity.ok(employeeService.listAllEmployees(pageNo, pageSize));
     }
 
     @GetMapping("/{employeeId}")
