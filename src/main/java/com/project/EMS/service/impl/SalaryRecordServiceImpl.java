@@ -57,7 +57,7 @@ public class SalaryRecordServiceImpl implements SalaryRecordService {
 
     @Override
     public SalaryHistoryPageResponse getSalaryHistory(Long  employeeId, int pageNo, int pageSize){
-        Employee employee = employeeRepository.findById(employeeId).orElseThrow(()-> new ResourceNotFoundException("Employee not found with ID: "+employeeId));
+        if (!employeeRepository.existsById(employeeId)) throw new ResourceNotFoundException("Employee not found with ID: "+employeeId);
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<SalaryRecord> pageResult = salaryRecordRepository.findByEmployeeIdOrderByEffectiveDateDesc(employeeId, pageable);
         List<SalaryRecordResponse> mappedContent = pageResult.getContent().stream()
