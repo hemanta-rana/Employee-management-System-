@@ -51,6 +51,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidSalaryAmountException.class)
+    public ResponseEntity<?> handleInvalidSalaryException(InvalidSalaryAmountException ex,
+                                                          HttpServletRequest request){
+        Map<String, Object> body = handleErrorMessage(ex, request);
+        return  new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGlobalException(
             Exception ex,
