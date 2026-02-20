@@ -1,15 +1,19 @@
 package com.project.EMS.service.impl;
 
+import com.project.EMS.dto.ResponseDto.DepartmentPageResponse;
 import com.project.EMS.dto.ResponseDto.DepartmentResponse;
 import com.project.EMS.dto.requestDto.CreateDepartmentRequest;
 import com.project.EMS.dto.requestDto.UpdateDepartmentRequest;
 import com.project.EMS.entity.Department;
 import com.project.EMS.exception.ResourceNotFoundException;
 import com.project.EMS.mapper.DepartmentMapper;
+import com.project.EMS.projection.DepartmentWithEmployeeCount;
 import com.project.EMS.repository.DepartmentRepository;
 import com.project.EMS.repository.EmployeeRepository;
 import com.project.EMS.service.DepartmentService;
-import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AllArgsConstructor;
@@ -25,15 +29,13 @@ import java.util.List;
 public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
-    private final DepartmentMapper departmentMapper = Mappers.getMapper(DepartmentMapper.class);
+    private final DepartmentMapper departmentMapper ;
 
     @Override
     @Transactional
     public DepartmentResponse createDepartment(CreateDepartmentRequest createDepartmentRequest) {
 
-        Department department = new Department();
-        department.setDepartmentName(createDepartmentRequest.getDepartmentName());
-        department.setIsActive(createDepartmentRequest.getIsActive());
+        Department department =departmentMapper.toEntity(createDepartmentRequest);
         department.setCreatedAt(LocalDateTime.now());
 
         Department savedDepartment = departmentRepository.save(department);
@@ -41,8 +43,6 @@ public class DepartmentServiceImpl implements DepartmentService {
         departmentResponse.setEmployeeCount(employeeRepository.countByDepartmentId(savedDepartment.getId()));
 
         return departmentResponse;
-
-
     }
 
     @Override
@@ -61,20 +61,18 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public List<DepartmentResponse> listAllDepartment() {
-        List<Department> departments = departmentRepository.findAll();
+    public DepartmentPageResponse listAllDepartment(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+       Page<DepartmentWithEmployeeCount> departments = departmentRepository.findAllWithEmployeeCount(pageable);
 
-        return departments.stream()
-               .map(department -> {
-                   DepartmentResponse departmentResponse = new DepartmentResponse();
-                   departmentResponse.setId(department.getId());
-                   departmentResponse.setDepartmentName(department.getDepartmentName());
-                   departmentResponse.setCreatedAt(department.getCreatedAt());
-                   departmentResponse.setIsActive(department.getIsActive());
-                   departmentResponse.setEmployeeCount(employeeRepository.countByDepartmentId(department.getId()));
-                   return departmentResponse;
-               })
-               .toList();
+       List<DepartmentResponse> responses = departmentMapper.toResponseList(departments.getContent());
+
+       return new DepartmentPageResponse(responses,
+               departments.getNumber(),
+               departments.getSize(),
+               departments.getTotalElements(),
+               departments.getTotalPages(),
+               departments.isLast());
     }
 
 
