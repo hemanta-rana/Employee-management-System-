@@ -1,6 +1,7 @@
 package com.project.EMS.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.websocket.OnClose;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -56,6 +57,13 @@ public class GlobalExceptionHandler {
                                                           HttpServletRequest request){
         Map<String, Object> body = handleErrorMessage(ex, request);
         return  new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<?> handleDuplicateResourceException(DuplicateResourceException ex,
+                                                              HttpServletRequest request){
+        Map<String, Object> body = handleErrorMessage(ex, request);
+        return new ResponseEntity<>(body,HttpStatus.BAD_REQUEST );
     }
 
     @ExceptionHandler(Exception.class)

@@ -11,8 +11,8 @@ import java.util.List;
 public interface EmployeeService {
     EmployeeResponse createEmployee(CreateEmployeeRequest createEmployeeRequest);
     EmployeeResponse updateEmployee(UpdateEmployeeRequest updateEmployeeRequest, Long employeeId);
-    EmployeesPageResponse listAllEmployees(int pageNo, int pageSize);
+    EmployeesPageResponse listAllEmployees(int pageNo, int pageSize, String sortBy, String sortDir, String keyWord);
     EmployeeResponse getEmployeeById(Long employeeId);
-    Void deleteEmployeeById(Long employeeId);
+    void deleteEmployeeById(Long employeeId);
 
 }

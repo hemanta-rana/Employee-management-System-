@@ -11,30 +11,32 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
-@RequestMapping("/api/employee")
+@RequestMapping("/api/employees")
 @AllArgsConstructor
 public class EmployeeController {
 
    private final EmployeeService employeeService;
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<EmployeeResponse> createEmployee( @Valid @RequestBody CreateEmployeeRequest createEmployeeRequest){
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.createEmployee(createEmployeeRequest));
     }
 
-    @PostMapping("/update/{employeeId}")
+    @PutMapping("/{employeeId}")
     public ResponseEntity<EmployeeResponse> updateEmployee(@Valid @RequestBody UpdateEmployeeRequest updateEmployeeRequest,
                                                            @PathVariable Long employeeId){
         return ResponseEntity.ok(employeeService.updateEmployee(updateEmployeeRequest, employeeId));
     }
 
     @GetMapping
-    public ResponseEntity<EmployeesPageResponse> getAllEmployee(@RequestParam(defaultValue = "0") int pageNo,
-                                                                @RequestParam(defaultValue = "10") int pageSize){
-        return ResponseEntity.ok(employeeService.listAllEmployees(pageNo, pageSize));
+    public ResponseEntity<EmployeesPageResponse> getAllEmployee(@RequestParam(required = false, defaultValue = "0") int pageNo,
+                                                                @RequestParam(required = false, defaultValue = "10") int pageSize,
+                                                                @RequestParam(required = false, defaultValue = "id") String sortBy,
+                                                                @RequestParam(required = false, defaultValue = "ASC") String sortDir,
+                                                                @RequestParam(required = false) String keyWord){
+        return ResponseEntity.ok(employeeService.listAllEmployees(pageNo, pageSize, sortBy, sortDir, keyWord));
     }
 
     @GetMapping("/{employeeId}")
@@ -44,7 +46,8 @@ public class EmployeeController {
 
     @DeleteMapping("/{employeeId}")
     public ResponseEntity<Void> deleteEmployeeById(@PathVariable Long employeeId){
-        return ResponseEntity.ok(employeeService.deleteEmployeeById(employeeId));
+        employeeService.deleteEmployeeById(employeeId);
+        return ResponseEntity.noContent().build();
     }
 
  

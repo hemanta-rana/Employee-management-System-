@@ -8,6 +8,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
-    Page<Employee> findAll(Pageable pageable);
+    Page<Employee> findByIsActiveTrue(Pageable pageable);
     Long countByDepartmentId(Long departmentId);
+    boolean existsByEmail(String email);
+    Page<Employee> findByNameContainingIgnoreCaseAndIsActiveTrue(String keyword, Pageable pageable);
+
 }

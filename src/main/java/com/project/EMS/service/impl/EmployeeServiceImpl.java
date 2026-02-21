@@ -6,6 +6,7 @@ import com.project.EMS.dto.requestDto.CreateEmployeeRequest;
 import com.project.EMS.dto.requestDto.UpdateEmployeeRequest;
 import com.project.EMS.entity.Department;
 import com.project.EMS.entity.Employee;
+import com.project.EMS.exception.DuplicateResourceException;
 import com.project.EMS.exception.ResourceNotFoundException;
 import com.project.EMS.mapper.EmployeeMapper;
 
@@ -18,6 +19,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +38,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional
     public EmployeeResponse createEmployee(CreateEmployeeRequest createEmployeeRequest) {
-
+        if (employeeRepository.existsByEmail(createEmployeeRequest.getEmail())) throw new DuplicateResourceException("Email already exists ");
         Employee employee = employeeMapper.toEntity(createEmployeeRequest);
         employee.setCreatedAt(LocalDateTime.now());
         Department department = departmentRepository.findById(createEmployeeRequest.getDepartmentId()).orElseThrow(()-> new ResourceNotFoundException("department not found  with id: "+createEmployeeRequest.getDepartmentId()));
@@ -51,6 +53,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeResponse updateEmployee(UpdateEmployeeRequest updateEmployeeRequest, Long employeeId) {
 
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(()-> new ResourceNotFoundException("Employee not found with ID: "+employeeId));
+        if (employeeRepository.existsByEmail(updateEmployeeRequest.getEmail())) throw new DuplicateResourceException("Email already in user ");
         employee.setName(updateEmployeeRequest.getName());
         employee.setEmail(updateEmployeeRequest.getEmail());
         employee.setPhone(updateEmployeeRequest.getPhone());
@@ -65,9 +68,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Transactional(readOnly = true)
-    public EmployeesPageResponse listAllEmployees(int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Employee> employeePage = employeeRepository.findAll(pageable);
+    public EmployeesPageResponse listAllEmployees(int pageNo, int pageSize, String sortBy, String sortDir, String keyWord) {
+
+        Sort.Direction direction = Sort.Direction.fromString(sortDir);
+        Sort sort = Sort.by(direction, sortBy);
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Employee> employeePage = null;
+        if (keyWord==null || keyWord.isBlank()){
+           employeePage = employeeRepository.findByIsActiveTrue(pageable);
+        }else {
+            employeePage = employeeRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(keyWord, pageable);
+        }
+
         List<EmployeeResponse> employees = employeePage.
                 getContent().
                 stream().
@@ -94,9 +107,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Transactional
-    public Void deleteEmployeeById(Long employeeId) {
+    public void deleteEmployeeById(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(()->new ResourceNotFoundException("Employee not found with ID:"+employeeId));
-        employeeRepository.delete(employee);
-        return null;
+        employee.setIsActive(false);
+        employeeRepository.save(employee);
     }
+
+
 }
