@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -29,7 +31,8 @@ public class User {
     private String email;
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive;
+    private Boolean isActive = true;
+
     @Column(name = "last_login")
     private LocalDateTime lastLogin ;
 
@@ -37,7 +40,7 @@ public class User {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "user")
-    private List<UserRole> userRoles;
+    private Set<UserRole> userRoles =  new HashSet<>();
 
 
 
