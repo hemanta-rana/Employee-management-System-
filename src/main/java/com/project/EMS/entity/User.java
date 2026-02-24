@@ -39,8 +39,16 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user")
-    private Set<UserRole> userRoles =  new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "user_roles",
+            joinColumns = {
+                    @JoinColumn (name = "user_id", referencedColumnName = "id")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn (name = "role_id", referencedColumnName = "id")
+            })
+    private Set<Role> roles =  new HashSet<>();
 
 
 

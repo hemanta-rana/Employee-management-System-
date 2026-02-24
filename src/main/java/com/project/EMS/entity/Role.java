@@ -25,6 +25,6 @@ public class Role {
     @Column(name = "role_name", nullable = false)
     private String roleName;
 
-    @OneToMany(mappedBy = "role")
-    private Set<UserRole> userRoles = new HashSet<>();
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users = new HashSet<>();
 }
