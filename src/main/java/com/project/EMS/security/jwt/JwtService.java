@@ -51,7 +51,7 @@ public class JwtService {
                         "roles", roles,
                         "typ", "access"
                 ))
-                .signWith(key, SignatureAlgorithm.ES512)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
 
     }
@@ -92,9 +92,9 @@ public class JwtService {
         Claims c = parse(token).getPayload();
         return "refresh".equals(c.get("typ"));
     }
-    public UUID getUserId(String token){
+    public Long getUserId(String token){
         Claims c = parse(token).getPayload();
-        return UUID.fromString(c.getSubject());
+       return Long.parseLong(c.getSubject());
     }
 
     public String getJti (String token){
