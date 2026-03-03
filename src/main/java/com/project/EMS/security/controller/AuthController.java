@@ -2,6 +2,7 @@ package com.project.EMS.security.controller;
 
 import com.project.EMS.security.dto.requestDto.CreateUserRequest;
 import com.project.EMS.security.dto.requestDto.LoginRequest;
+import com.project.EMS.security.dto.responseDto.TokenResponse;
 import com.project.EMS.security.dto.responseDto.UserResponse;
 import com.project.EMS.security.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -25,7 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> loginUser(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<TokenResponse> loginUser(@RequestBody LoginRequest loginRequest){
         return ResponseEntity.ok(authService.loginUser(loginRequest));
     }
 

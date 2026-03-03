@@ -65,6 +65,12 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = handleErrorMessage(ex, request);
         return new ResponseEntity<>(body,HttpStatus.BAD_REQUEST );
     }
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<?> handleInvalidCredentialsException(InvalidCredentialsException ex,
+                                                               HttpServletRequest request){
+        Map<String, Object> body = handleErrorMessage(ex, request);
+        return new ResponseEntity<>(body,HttpStatus.BAD_REQUEST );
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGlobalException(
