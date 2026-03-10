@@ -34,15 +34,14 @@ public class SecurityConfig {
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request ->
 //                    request.requestMatchers(HttpMethod.GET, "/api/**").permitAll();
-                    request.requestMatchers(HttpMethod.POST, "/api/v1/users/register").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/users/login").permitAll()
+                    request.requestMatchers(HttpMethod.POST, "/api/v1/users/**").permitAll()
                     .anyRequest().authenticated()
                 )
         .exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, authException) ->{
                 authException.printStackTrace();
                 response.setStatus(401);
                 response.setContentType("application/json");
-                String message = "unauthorized access" + authException.getMessage();
+                String message = authException.getMessage();
                 Map<String, String> errorMap = Map.of("message", message, "status", String.valueOf(401),"statusCode", String.valueOf(401));
                 var objectMapper = new ObjectMapper();
 

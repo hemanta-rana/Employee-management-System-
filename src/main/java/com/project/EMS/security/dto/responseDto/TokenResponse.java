@@ -1,8 +1,9 @@
 package com.project.EMS.security.dto.responseDto;
 
-import com.project.EMS.security.dto.requestDto.CreateUserRequest;
 
-public record TokenResponse(
+public record
+
+TokenResponse(
         String accessToken,
         String refreshToken,
         long expiresIn,

@@ -40,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public TokenResponse loginUser(LoginRequest loginRequest) {
 
-       Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
+       Authentication authentication = authenticate(loginRequest);
         User user = userRepository.findByUsername(loginRequest.username()).orElseThrow(()-> new BadCredentialsException("Invalid username or password "));
         if (!user.isEnabled()) throw new DisabledException("User is disabled ");
         String accessToken = jwtService.generateAccessToken(user);
@@ -48,11 +48,19 @@ public class AuthServiceImpl implements AuthService {
         return TokenResponse.of(accessToken, "", jwtService.getAccessTtlSeconds(), userMapper.toUserResponse(user));
 
 
-
-
-
-
     }
+
+    private Authentication authenticate(LoginRequest loginRequest){
+
+        try{
+            return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
+
+        }catch (Exception e){
+            throw new BadCredentialsException("Invalid username or password");
+        }
+    }
+
+
 
 
 }
