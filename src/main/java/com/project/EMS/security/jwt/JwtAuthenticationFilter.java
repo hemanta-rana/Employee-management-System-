@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         final String header = request.getHeader("Authorization");
-
+        log.info("Authorization header : {}", header);
 
         if (header != null && header.startsWith("Bearer ")){
             String token = header.substring(7);
@@ -66,17 +66,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
             }catch (ExpiredJwtException e) {
-                e.printStackTrace();
+                request.setAttribute("error", "Token Expired");
+//                e.printStackTrace();
 
             }catch (MalformedJwtException e){
-                e.printStackTrace();
-            } catch (JwtException e){
-            e.printStackTrace();
 
-        }
+                request.setAttribute("error", "Invalid Token");
+//                e.printStackTrace();
+            } catch (JwtException e) {
+                request.setAttribute("error", "Invalid Token");
+//            e.printStackTrace();
+
+            }catch (Exception e){
+                request.setAttribute("error", "Invalid Token");
+            }
 
 
         }
         filterChain.doFilter(request, response);
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException{
+        return request.getRequestURI().startsWith("/api/v1/auth");
+    }
+
+
+
+
 }

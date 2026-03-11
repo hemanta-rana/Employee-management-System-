@@ -33,7 +33,6 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request ->
-//                    request.requestMatchers(HttpMethod.GET, "/api/**").permitAll();
                     request.requestMatchers(HttpMethod.POST, "/api/v1/users/**").permitAll()
                     .anyRequest().authenticated()
                 )
@@ -63,5 +62,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
         return configuration.getAuthenticationManager();
     }
+
+
 
 }

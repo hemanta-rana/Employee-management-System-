@@ -1,9 +1,14 @@
 package com.project.EMS.exception;
 
+import com.project.EMS.security.dto.responseDto.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.websocket.OnClose;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -71,6 +76,18 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = handleErrorMessage(ex, request);
         return new ResponseEntity<>(body,HttpStatus.BAD_REQUEST );
     }
+
+    @ExceptionHandler({
+            UsernameNotFoundException.class,
+            BadCredentialsException.class,
+            CredentialsExpiredException.class,
+            DisabledException.class
+    })
+    public ResponseEntity<ApiError> handleAuthException(Exception e, HttpServletRequest request){
+         var apiError = ApiError.of(HttpStatus.BAD_REQUEST.value(),"Bad request", e.getMessage(), request.getRequestURI());
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGlobalException(
