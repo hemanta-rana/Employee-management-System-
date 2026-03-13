@@ -1,11 +1,14 @@
 package com.project.EMS.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.project.EMS.security.dto.responseDto.ApiError;
 import com.project.EMS.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -37,14 +40,18 @@ public class SecurityConfig {
                     .anyRequest().authenticated()
                 )
         .exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, authException) ->{
-                authException.printStackTrace();
+//                authException.printStackTrace();
                 response.setStatus(401);
                 response.setContentType("application/json");
                 String message = authException.getMessage();
-                Map<String, String> errorMap = Map.of("message", message, "status", String.valueOf(401),"statusCode", String.valueOf(401));
+                String error = (String) request.getAttribute("error");
+                if (error != null){
+                    message = error;
+                }
+                 var apiError = ApiError.of(HttpStatus.UNAUTHORIZED.value(), "unauthorized access !", message, request.getRequestURI());
                 var objectMapper = new ObjectMapper();
 
-            response.getWriter().write(objectMapper.writeValueAsString(errorMap));
+            response.getWriter().write(objectMapper.writeValueAsString(apiError));
                 }
         ));
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -62,6 +69,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
         return configuration.getAuthenticationManager();
     }
+
 
 
 
