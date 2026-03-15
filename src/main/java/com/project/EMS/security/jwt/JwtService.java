@@ -53,7 +53,7 @@ public class JwtService {
                 .claims(Map.of(
                         "email", user.getEmail(),
                         "roles", roles,
-                        "typ", "access"
+                        "typ", "access"  
                 ))
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();

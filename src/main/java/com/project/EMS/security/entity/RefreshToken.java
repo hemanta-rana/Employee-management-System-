@@ -1,0 +1,39 @@
+package com.project.EMS.security.entity;
+
+import com.project.EMS.entity.User;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.Instant;
+import java.util.UUID;
+
+@Entity
+@Table(name = "refresh_tokens", indexes ={
+        @Index(name = "refresh_tokens_jti_idx", columnList = "jti", unique = true),
+        @Index(name = "refresh_tokens_user_id_idx", columnList = "user_id")
+})
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class RefreshToken {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private UUID id;
+
+    @Column(name = "jti", unique = true, nullable = false, updatable = false)
+    private String jti;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    private User user;
+
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
+    @Column(nullable = false)
+    private Instant expiredAt;
+    @Column(nullable = false)
+    private boolean revoked;
+}
